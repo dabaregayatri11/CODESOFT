@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Calculator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .calculator {
+            width: 380px;
+            background-color: #333;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .display {
+            width: 100%;
+            height: 80px;
+            background-color: #222;
+            color: #fff;
+            font-size: 2em;
+            text-align: right;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .display .equation {
+            font-size: 0.8em;
+            color: #aaa;
+            white-space: nowrap;
+            overflow-x: auto;
+        }
+
+        .display .result {
+            font-size: 1.5em;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 10px;
+        }
+
+        .button {
+            padding: 20px;
+            background-color: #444;
+            color: #fff;
+            font-size: 1.5em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+
+        .button:hover {
+            background-color: #555;
+        }
+
+        .button.operator {
+            background-color: #ff9500;
+        }
+
+        .button.operator:hover {
+            background-color: #e68a00;
+        }
+
+        .button.equal {
+            grid-column: span 2;
+            background-color: #1abc9c;
+        }
+
+        .button.equal:hover {
+            background-color: #16a085;
+        }
+
+        .button.zero {
+            grid-column: span 2;
+        }
+
+        .button.clear {
+            background-color: #e74c3c;
+        }
+
+        .button.clear:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator">
+    <div class="display">
+        <div id="equation" class="equation"></div>
+        <div id="result" class="result">0</div>
+    </div>
+    <div class="buttons">
+        <button class="button clear" onclick="clearDisplay()">C</button>
+        <button class="button operator" onclick="appendSymbol('(')">(</button>
+        <button class="button operator" onclick="appendSymbol(')')">)</button>
+        <button class="button operator" onclick="deleteLast()">DEL</button>
+
+        <button class="button" onclick="appendNumber('7')">7</button>
+        <button class="button" onclick="appendNumber('8')">8</button>
+        <button class="button" onclick="appendNumber('9')">9</button>
+        <button class="button operator" onclick="chooseOperation('/')">/</button>
+
+        <button class="button" onclick="appendNumber('4')">4</button>
+        <button class="button" onclick="appendNumber('5')">5</button>
+        <button class="button" onclick="appendNumber('6')">6</button>
+        <button class="button operator" onclick="chooseOperation('*')">*</button>
+
+        <button class="button" onclick="appendNumber('1')">1</button>
+        <button class="button" onclick="appendNumber('2')">2</button>
+        <button class="button" onclick="appendNumber('3')">3</button>
+        <button class="button operator" onclick="chooseOperation('-')">-</button>
+
+        <button class="button zero" onclick="appendNumber('0')">0</button>
+        <button class="button" onclick="appendNumber('.')">.</button>
+        <button class="button equal" onclick="calculate()">=</button>
+        <button class="button operator" onclick="chooseOperation('+')">+</button>
+    </div>
+</div>
+
+<script>
+    let equationDisplay = document.getElementById('equation');
+    let resultDisplay = document.getElementById('result');
+    let currentInput = '';
+    let equation = '';
+    let operation = null;
+    let shouldResetDisplay = false;
+
+    function appendNumber(number) {
+        if (shouldResetDisplay) {
+            currentInput = '';
+            shouldResetDisplay = false;
+        }
+        if (currentInput.includes('.') && number === '.') return;
+        currentInput += number;
+        updateDisplay();
+    }
+
+    function appendSymbol(symbol) {
+        if (shouldResetDisplay) {
+            equation = '';
+            shouldResetDisplay = false;
+        }
+        equation += symbol;
+        updateDisplay();
+    }
+
+    function chooseOperation(op) {
+        if (currentInput === '' && equation === '') return;
+        if (currentInput !== '') {
+            equation += currentInput;
+        }
+        if (operation !== null) {
+            equation = equation.slice(0, -1);
+        }
+        operation = op;
+        equation += ` ${operation} `;
+        currentInput = '';
+        updateDisplay();
+    }
+
+    function calculate() {
+        if (currentInput !== '') {
+            equation += currentInput;
+        }
+        try {
+            currentInput = parseFloat(eval(equation)).toFixed(2).toString();
+        } catch {
+            currentInput = 'Error';
+        }
+        operation = null;
+        equation = '';
+        shouldResetDisplay = true;
+        updateDisplay();
+    }
+
+    function clearDisplay() {
+        currentInput = '';
+        equation = '';
+        operation = null;
+        shouldResetDisplay = false;
+        updateDisplay();
+    }
+
+    function deleteLast() {
+        if (currentInput !== '') {
+            currentInput = currentInput.slice(0, -1);
+        } else if (operation !== null) {
+            operation = null;
+            equation = equation.slice(0, -3);
+        } else if (equation !== '') {
+            equation = equation.slice(0, -1);
+        }
+        updateDisplay();
+    }
+
+    function updateDisplay() {
+        equationDisplay.innerText = equation;
+        resultDisplay.innerText = currentInput || '0';
+    }
+</script>
+
+</body>
+</html>
